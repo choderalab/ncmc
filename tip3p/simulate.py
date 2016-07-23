@@ -12,11 +12,11 @@ kT = unit.BOLTZMANN_CONSTANT_kB * unit.AVOGADRO_CONSTANT_NA * temperature
 pressure = 1.0 * unit.atmospheres
 frequency = 50 # barostat update frequency
 timestep = 2.0 * unit.femtoseconds # timestep
-nequil = 100 # number of equilibration iterations
+nequil = 250 # number of equilibration iterations
 nequilsteps = 500 # number of steps per equilibration iteration
 
 # Simulate the system to collect work values
-nwork = 20 # number of work values to collect
+nwork = 100 # number of work values to collect
 tmax = 40 * unit.picoseconds # maximum switching time
 nworksteps = 50 # number of steps per work recoridng
 nsteps = int(np.round(tmax / timestep)) # total number of steps to integrator for
