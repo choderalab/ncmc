@@ -16,7 +16,7 @@ nequil = 250 # number of equilibration iterations
 nequilsteps = 500 # number of steps per equilibration iteration
 
 # Simulate the system to collect work values
-nwork = 100 # number of work values to collect
+nwork = 1000 # number of work values to collect
 tmax = 40 * unit.picoseconds # maximum switching time
 nworksteps = 50 # number of steps per work recoridng
 nsteps = int(np.round(tmax / timestep)) # total number of steps to integrator for
@@ -25,7 +25,7 @@ nworkvals = int(nsteps / nworksteps)
 def run():
     # Create a TIP3P water box
     from openmmtools import testsystems
-    waterbox = testsystems.WaterBox(box_edge=25.0*unit.angstroms, cutoff=9*unit.angstroms, model='tip3p', switch_width=1.5*unit.angstroms, constrained=True, dispersion_correction=True, nonbondedMethod=app.CutoffPeriodic, ewaldErrorTolerance=1.0e-6)
+    waterbox = testsystems.WaterBox(box_edge=25.0*unit.angstroms, cutoff=9*unit.angstroms, model='tip3p', switch_width=1.5*unit.angstroms, constrained=True, dispersion_correction=True, nonbondedMethod=app.PME, ewaldErrorTolerance=1.0e-6)
     print('System contains %d molecules' % (waterbox.system.getNumParticles() / 3))
 
     # Add barostat
@@ -34,9 +34,10 @@ def run():
     # Create OpenMM context
     from openmmtools import integrators
     integrator = integrators.VelocityVerletIntegrator(timestep)
-    #platform = openmm.Platform.getPlatformByName('OpenCL')
+    platform = openmm.Platform.getPlatformByName('CUDA')
     #platform.setPropertyDefaultValue('OpenCLPrecision', 'double')
-    context = openmm.Context(waterbox.system, integrator)
+    platform.setPropertyDefaultValue('DeterministicForces', 'true')
+    context = openmm.Context(waterbox.system, integrator, platform)
     context.setPositions(waterbox.positions)
 
     # Equilibrate with barostat
