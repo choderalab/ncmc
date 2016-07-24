@@ -97,14 +97,13 @@ def analyze():
                         if x == 0 : plt.ylabel('$2^{%d}$' % np.log2(timestep))
                         oldaxis = np.array(plt.axis())
                         limit = max(abs(oldaxis))
-                        limit = 10 # DEBUG
-                        plt.axis([-limit, +limit, -limit, +limit])
-                        if y == len(timesteps_to_try)-1 and x == 0:
-                            plt.xticks([-limit, 0, limit])
-                            plt.yticks([-limit, 0, limit])
-                        else:
-                            plt.gca().tick_params(labelcolor='w', top='off', bottom='off', left='off', right='off')                        
+                        limit = 1 # DEBUG
+                        plt.xticks([-limit, 0, limit])
+                        plt.yticks([-limit, 0, limit])
+                        if not (y == len(timesteps_to_try)-1 and x == 0):
+                            plt.gca().tick_params(labelcolor='w', top='off', bottom='off', left='off', right='off')
                         plt.axis('equal')
+                        plt.axis([-limit, +limit, -limit, +limit])
 
                 #fig.tight_layout()
                 fig.savefig('protocol-vs-shadow-work-%s-%s.png' % (equilibration_integrator,switching_integrator))

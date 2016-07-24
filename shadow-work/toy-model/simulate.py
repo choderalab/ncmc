@@ -21,8 +21,8 @@ import itertools
 # PARAMETERS
 ################################################################################
 
-timesteps_to_try = [ 2.0**n for n in range(-6, 2) ]
-nsteps_to_try = [ 2**n for n in range(0, 10)]
+timesteps_to_try = [ 2.0**n for n in np.arange(-3, 1, 0.5) ]
+nsteps_to_try = [ 2**n for n in np.arange(0, 20, 2)]
 equilibration_integrators_to_try = ['VVVR', 'GHMC'] # integrator to use for equilibration
 switching_integrators_to_try = ['VV', 'VVVR', 'GHMC'] # integrator to use for NCMC switches
 ntrials = 100 # number of work trials
