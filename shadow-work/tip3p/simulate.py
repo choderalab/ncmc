@@ -25,8 +25,13 @@ nworkvals = int(nsteps / nworksteps)
 def run():
     # Create a TIP3P water box
     from openmmtools import testsystems
-    waterbox = testsystems.WaterBox(box_edge=25.0*unit.angstroms, cutoff=9*unit.angstroms, model='tip3p', switch_width=1.5*unit.angstroms, constrained=True, dispersion_correction=True, nonbondedMethod=app.PME, ewaldErrorTolerance=1.0e-6)
-    print('System contains %d molecules' % (waterbox.system.getNumParticles() / 3))
+    #testsystem = testsystems.WaterBox(box_edge=25.0*unit.angstroms, cutoff=9*unit.angstroms, model='tip3p', switch_width=1.5*unit.angstroms, constrained=True, dispersion_correction=True, nonbondedMethod=app.PME, ewaldErrorTolerance=1.0e-6)
+    testsystem = testsystems.DHFRExplicit(nonbondedCutoff=9*unit.angstroms, switch_width=1.5*unit.angstroms, nonbondedMethod=app.PME, ewaldErrorTolerance=1.0e-6)
+
+    testsystem_name = testsystem.__class__.__name__
+    precision = 'double'
+
+    print('%s %s : contains %d particles' % (testsystem_name, precision, testsystem.system.getNumParticles()))
 
     # Add barostat
     barostat = openmm.MonteCarloBarostat(pressure, temperature, frequency)
@@ -34,11 +39,11 @@ def run():
     # Create OpenMM context
     from openmmtools import integrators
     integrator = integrators.VelocityVerletIntegrator(timestep)
-    platform = openmm.Platform.getPlatformByName('CUDA')
-    #platform.setPropertyDefaultValue('OpenCLPrecision', 'double')
-    platform.setPropertyDefaultValue('DeterministicForces', 'true')
-    context = openmm.Context(waterbox.system, integrator, platform)
-    context.setPositions(waterbox.positions)
+    platform = openmm.Platform.getPlatformByName('OpenCL')
+    platform.setPropertyDefaultValue('OpenCLPrecision', precision)
+    #platform.setPropertyDefaultValue('DeterministicForces', 'true')
+    context = openmm.Context(testsystem.system, integrator, platform)
+    context.setPositions(testsystem.positions)
 
     # Equilibrate with barostat
     print('equilibrating...')
@@ -53,7 +58,7 @@ def run():
     barostat.setFrequency(0)
 
     # Open NetCDF file for writing.
-    ncfile = netcdf.Dataset('work.nc', 'w')
+    ncfile = netcdf.Dataset('work-%s-%s.nc' % (testsystem_name, precision), 'w')
     ncfile.createDimension('nwork', 0) # extensible dimension
     ncfile.createDimension('nworkvals', nworkvals+1)
     ncfile.createVariable('work', np.float64, ('nwork', 'nworkvals'))
