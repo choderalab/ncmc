@@ -61,8 +61,8 @@ def run():
     ncfile = netcdf.Dataset('work-%s-%s.nc' % (testsystem_name, precision), 'w')
     ncfile.createDimension('nwork', 0) # extensible dimension
     ncfile.createDimension('nworkvals', nworkvals+1)
-    ncfile.createVariable('work', np.float64, ('nwork', 'nworkvals'))
-    work = np.zeros([nwork, nworkvals+1], np.float64)
+    ncfile.createVariable('work', np.float32, ('nwork', 'nworkvals'))
+    work = np.zeros([nwork, nworkvals+1], np.float32)
     for i in range(nwork):
         context.setVelocitiesToTemperature(temperature)
         integrator.step(nequilsteps) # equilibrate
