@@ -10,7 +10,7 @@ import netCDF4 as netcdf
 from simulate import nworksteps, timestep
 
 # Read work
-ncfile = netcdf.Dataset('work.nc', 'r')
+ncfile = netcdf.Dataset('work-DHFR-double.nc', 'r')
 work = ncfile.variables['work'][:,:]
 [nwork,nworkvals] = work.shape
 
