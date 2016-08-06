@@ -14,12 +14,12 @@ pressure = 1.0 * unit.atmospheres
 frequency = 50 # barostat update frequency
 timestep = 2.0 * unit.femtoseconds # timestep
 nequil = 20 # number of equilibration iterations
-nequilsteps = 500 # number of steps per equilibration iteration
+nequilsteps = 50 # number of steps per equilibration iteration
 
 # Simulate the system to collect work values
-nwork = 1000 # number of work values to collect
-tmax = 40 * unit.picoseconds # maximum switching time
-nworksteps = 50 # number of steps per work recoridng
+nwork = 100 # number of work values to collect
+tmax = 10 * unit.picoseconds # maximum switching time
+nworksteps = 50 # number of steps per work recording
 nsteps = int(np.round(tmax / timestep)) # total number of steps to integrator for
 nworkvals = int(nsteps / nworksteps)
 
@@ -63,7 +63,7 @@ def tip3p():
 def run():
     #[system, positions, testsystem_name] = dhfr()
     [system, positions, testsystem_name] = tip3p()
-    precision = 'double'
+    precision = 'reference'
 
     print('%s %s : contains %d particles' % (testsystem_name, precision, system.getNumParticles()))
 
@@ -87,9 +87,9 @@ def run():
     from openmmtools import integrators
     integrator = integrators.VelocityVerletIntegrator(timestep)
     integrator.setConstraintTolerance(1.0e-8)
-    platform = openmm.Platform.getPlatformByName('CUDA')
-    platform.setPropertyDefaultValue('CudaPrecision', precision)
-    platform.setPropertyDefaultValue('DeterministicForces', 'true')
+    platform = openmm.Platform.getPlatformByName('Reference')
+    #platform.setPropertyDefaultValue('CudaPrecision', precision)
+    #platform.setPropertyDefaultValue('DeterministicForces', 'true')
     context = openmm.Context(system, integrator, platform)
     context.setPositions(positions)
 
