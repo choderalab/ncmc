@@ -66,7 +66,7 @@ def run():
         [system, positions, testsystem_name] = dhfr()
     elif sys.argv[1] == 'tip3p':
         [system, positions, testsystem_name] = tip3p()
-    
+
     precision = sys.argv[2]
     platform_name = sys.argv[3]
 
