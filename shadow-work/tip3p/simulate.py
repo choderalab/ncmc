@@ -93,8 +93,8 @@ def run():
     integrator = integrators.VelocityVerletIntegrator(timestep)
     integrator.setConstraintTolerance(1.0e-8)
     platform = openmm.Platform.getPlatformByName(platform_name)
+    platform.setPropertyDefaultValue('Precision', precision)
     if platform_name == 'CUDA':
-        platform.setPropertyDefaultValue('CudaPrecision', precision)
         platform.setPropertyDefaultValue('DeterministicForces', 'true')
     context = openmm.Context(system, integrator, platform)
     context.setPositions(positions)
