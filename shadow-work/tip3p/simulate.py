@@ -102,8 +102,18 @@ def run():
         platform.setPropertyDefaultValue('DeterministicForces', 'true')
         print('Using deterministic forces...')
     context = openmm.Context(system, integrator, platform)
+
     context.setPositions(positions)
     print('')
+
+    # Get PME parameters
+    print('Retrieving PME parameters...')
+    for force in system.getForces():
+        if force.__class__.__name__ == 'NonbondedForce':
+            nbforce = force
+            break
+    pme_parameters = nbforce.getPMEParametersInContext(context)
+    print(pme_parameters)
 
     # Flush
     sys.stdout.flush()
