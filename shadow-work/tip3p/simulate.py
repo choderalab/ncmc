@@ -6,6 +6,7 @@ from simtk import unit, openmm
 from simtk.openmm import app
 import netCDF4 as netcdf
 import copy
+import sys
 
 # PARAMETERS
 temperature = 300.0 * unit.kelvin
@@ -61,9 +62,13 @@ def tip3p():
     return [testsystem.system, testsystem.positions, testsystem_name]
 
 def run():
-    #[system, positions, testsystem_name] = dhfr()
-    [system, positions, testsystem_name] = tip3p()
-    precision = 'double'
+    if sys.argv[1] == 'dhfr':
+        [system, positions, testsystem_name] = dhfr()
+    elif sys.argv[1] == 'tip3p':
+        [system, positions, testsystem_name] = tip3p()
+    
+    precision = sys.argv[2]
+    platform_name = sys.argv[3]
 
     print('%s %s : contains %d particles' % (testsystem_name, precision, system.getNumParticles()))
 
@@ -87,9 +92,10 @@ def run():
     from openmmtools import integrators
     integrator = integrators.VelocityVerletIntegrator(timestep)
     integrator.setConstraintTolerance(1.0e-8)
-    platform = openmm.Platform.getPlatformByName('CUDA')
-    platform.setPropertyDefaultValue('CudaPrecision', precision)
-    platform.setPropertyDefaultValue('DeterministicForces', 'true')
+    platform = openmm.Platform.getPlatformByName(platform_name)
+    if platform_name == 'CUDA':
+        platform.setPropertyDefaultValue('CudaPrecision', precision)
+        platform.setPropertyDefaultValue('DeterministicForces', 'true')
     context = openmm.Context(system, integrator, platform)
     context.setPositions(positions)
 
@@ -132,7 +138,7 @@ def run():
     context.setVelocities(velocities)
 
     # Open NetCDF file for writing.
-    ncfile = netcdf.Dataset('work-%s-%s.nc' % (testsystem_name, precision), 'w')
+    ncfile = netcdf.Dataset('work-%s-%s-%s.nc' % (testsystem_name, precision, platform_name), 'w')
     ncfile.createDimension('nwork', 0) # extensible dimension
     ncfile.createDimension('nworkvals', nworkvals+1)
     ncfile.createVariable('work', np.float32, ('nwork', 'nworkvals'))
