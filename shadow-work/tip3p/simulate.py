@@ -14,7 +14,7 @@ kT = unit.BOLTZMANN_CONSTANT_kB * unit.AVOGADRO_CONSTANT_NA * temperature
 pressure = 1.0 * unit.atmospheres
 frequency = 50 # barostat update frequency
 timestep = 2.0 * unit.femtoseconds # timestep
-nequil = 20 # number of equilibration iterations
+nequil = 100 # number of equilibration iterations
 nequilsteps = 500 # number of steps per equilibration iteration
 
 # Simulate the system to collect work values
@@ -62,6 +62,7 @@ def tip3p():
     return [testsystem.system, testsystem.positions, testsystem_name]
 
 def run():
+    import sys
     if sys.argv[1] == 'dhfr':
         [system, positions, testsystem_name] = dhfr()
     elif sys.argv[1] == 'tip3p':
@@ -71,6 +72,7 @@ def run():
     platform_name = sys.argv[3]
 
     print('%s %s : contains %d particles' % (testsystem_name, precision, system.getNumParticles()))
+    print('')
 
     # Remove CMMotionRemover and barostat
     indices_to_remove = list()
@@ -84,11 +86,13 @@ def run():
     indices_to_remove.reverse()
     for index in indices_to_remove:
         system.removeForce(index)
+    print('')
 
     # Add barostat
     barostat = openmm.MonteCarloBarostat(pressure, temperature, frequency)
 
     # Create OpenMM context
+    print('Creating context...')
     from openmmtools import integrators
     integrator = integrators.VelocityVerletIntegrator(timestep)
     integrator.setConstraintTolerance(1.0e-8)
@@ -96,8 +100,13 @@ def run():
     platform.setPropertyDefaultValue('Precision', precision)
     if platform_name == 'CUDA':
         platform.setPropertyDefaultValue('DeterministicForces', 'true')
+        print('Using deterministic forces...')
     context = openmm.Context(system, integrator, platform)
     context.setPositions(positions)
+    print('')
+
+    # Flush
+    sys.stdout.flush()
 
     # Equilibrate with barostat
     print('equilibrating...')
@@ -110,6 +119,7 @@ def run():
         integrator.step(nequilsteps)
 
     # Get positions, velocities, and box vectors
+    print('')
     state = context.getState(getPositions=True, getVelocities=True)
     box_vectors = state.getPeriodicBoxVectors()
     positions = state.getPositions(asNumpy=True)

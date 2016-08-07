@@ -23,7 +23,7 @@
 ##PBS -V
 #
 # job name (default = name of script file)
-#PBS -N shadow-dhfr-mixed-cuda
+#PBS -N shadow-tip3p-double-cuda
 #
 # specify email
 #PBS -M jchodera@gmail.com
@@ -42,6 +42,6 @@ cat $PBS_GPUFILE
 setenv OPENMM_CPU_THREADS 1
 
 date
-python simulate.py dhfr mixed CUDA
+python simulate.py tip3p double CUDA
 date
 
